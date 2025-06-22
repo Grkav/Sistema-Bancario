@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BankSystem - Seu Banco Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
+        .transaction-item {
+            transition: all 0.2s ease;
+        }
+        
+        .transaction-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-indigo-600">
+                            <i class="fas fa-university mr-2"></i>BankSystem
+                        </h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=João+Silva&background=667eea&color=fff" alt="Profile">
+                        <span class="text-sm font-medium text-gray-700">João Silva</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Card de Saldo -->
+        <div class="mb-8">
+            <div class="balance-card rounded-xl p-6 text-white card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-white/80 text-sm font-medium">Saldo Disponível</p>
+                        <p class="text-3xl font-bold mt-2" id="balance">R$ 15.847,32</p>
+                        <p class="text-white/80 text-sm mt-1">Conta Corrente • **** 1234</p>
+                    </div>
+                    <div class="text-right">
+                        <i class="fas fa-eye text-white/80 text-xl cursor-pointer hover:text-white" id="toggleBalance"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de Ações -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <button class="bg-white p-4 rounded-lg shadow-sm border card-hover text-center" onclick="openModal('depositModal')">
+                <i class="fas fa-plus-circle text-green-500 text-2xl mb-2"></i>
+                <p class="text-sm font-medium text-gray-700">Depositar</p>
+            </button>
+            <button class="bg-white p-4 rounded-lg shadow-sm border card-hover text-center" onclick="openModal('transferModal')">
+                <i class="fas fa-exchange-alt text-blue-500 text-2xl mb-2"></i>
+                <p class="text-sm font-medium text-gray-700">Transferir</p>
+            </button>
+            <button class="bg-white p-4 rounded-lg shadow-sm border card-hover text-center" onclick="openModal('paymentModal')">
+                <i class="fas fa-credit-card text-purple-500 text-2xl mb-2"></i>
+                <p class="text-sm font-medium text-gray-700">Pagar</p>
+            </button>
+            <button class="bg-white p-4 rounded-lg shadow-sm border card-hover text-center">
+                <i class="fas fa-chart-line text-orange-500 text-2xl mb-2"></i>
+                <p class="text-sm font-medium text-gray-700">Investir</p>
+            </button>
+        </div>
+
+        <!-- Transações -->
+        <div class="bg-white rounded-lg shadow-sm border">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">Últimas Transações</h2>
+                    <button class="text-indigo-600 text-sm font-medium hover:text-indigo-700">Ver todas</button>
+                </div>
+            </div>
+            <div class="divide-y" id="transactionsList">
+                <!-- Lista de Transações  -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Deposito -->
+    <div id="depositModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Fazer Depósito</h3>
+                <button onclick="closeModal('depositModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form onsubmit="handleDeposit(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Valor</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-gray-500">R$</span>
+                        <input type="number" step="0.01" min="0.01" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0,00" required>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrição (opcional)</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ex: Salário, Freelance...">
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeModal('depositModal')" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Depositar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Transferir -->
+    <div id="transferModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Fazer Transferência</h3>
+                <button onclick="closeModal('transferModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form onsubmit="handleTransfer(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Destinatário</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nome ou CPF" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Valor</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-gray-500">R$</span>
+                        <input type="number" step="0.01" min="0.01" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0,00" required>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrição</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Motivo da transferência" required>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeModal('transferModal')" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Transferir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Pagamentos -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Fazer Pagamento</h3>
+                <button onclick="closeModal('paymentModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form onsubmit="handlePayment(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Código de Barras ou PIX</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Cole aqui o código" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Valor</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-gray-500">R$</span>
+                        <input type="number" step="0.01" min="0.01" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0,00" required>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrição</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ex: Conta de luz, Internet..." required>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeModal('paymentModal')" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Pagar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notificações -->
+    <div id="notificationsContainer" class="fixed top-4 right-4 z-50 space-y-2">
+        
+    </div>
+<script src="script.js"></script>
+</body>
+</html>
